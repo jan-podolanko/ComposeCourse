@@ -4,11 +4,10 @@ import android.content.ClipDescription
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -42,43 +41,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val scaffoldState = rememberScaffoldState()
-            var textFieldState by remember {
-                mutableStateOf("")
-            }
-            val scope = rememberCoroutineScope()
-
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                scaffoldState = scaffoldState
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 30.dp)
+            //loads items as you scroll as opposed to all at once
+            // as is the case with Column()
+            //better performance-wise (not shocking)
+            LazyColumn {
+                itemsIndexed(
+                    listOf("This", "is", "Jetpack","Compose")
                 ) {
-                    TextField(
-                        value = textFieldState,
-                        label = {
-                            Text("Enter your name")
-                        },
-                        onValueChange = {
-                            textFieldState = it
-                        },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {
-                        //never launch a coroutine directly in the composable, its only okay in callbacks such as an onClickListener
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("Hello $textFieldState")
-                        }
-                    }) {
-                        Text("Pls greet me")
-                    }
+                    index, string -> Text(
+                    text = string,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp)
+                )
                 }
             }
         }
