@@ -3,6 +3,8 @@ package com.example.composecourse
 import android.content.ClipDescription
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -39,6 +41,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import com.example.composecourse.ui.theme.ComposeCourseTheme
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -46,33 +49,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val constrains = ConstraintSet {
-                val greenBox = createRefFor("greenbox")
-                val redBox = createRefFor("redbox")
-                val guideline = createGuidelineFromTop(0.5f)
-
-                constrain(greenBox){
-                    top.linkTo(guideline)
-                    start.linkTo(parent.start)
-                    width = Dimension.value(100.dp)
-                    height = Dimension.value(100.dp)
+            val scaffoldState = rememberScaffoldState()
+            val scope = rememberCoroutineScope()
+            Scaffold(scaffoldState = scaffoldState) {
+                var counter = produceState(initialValue = 0){
+                    kotlinx.coroutines.delay(3000L)
+                    value = 4
                 }
-                constrain(redBox){
-                    top.linkTo(parent.top)
-                    start.linkTo(greenBox.end)
-                    end.linkTo(parent.end)
-                    width = Dimension.value(100.dp)
-                    height = Dimension.value(100.dp)
+                if(counter.value % 5 == 0 && counter.value > 0){
+                    LaunchedEffect(key1 = scaffoldState.snackbarHostState) {
+                        scaffoldState.snackbarHostState.showSnackbar("Hello")
+                    }
                 }
-                createHorizontalChain(greenBox,redBox, chainStyle = ChainStyle.Packed)
-            }
-            ConstraintLayout(constrains, modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier
-                    .background(Color.Green)
-                    .layoutId("greenbox"))
-                Box(modifier = Modifier
-                    .background(Color.Red)
-                    .layoutId("redbox"))
+                Button(onClick = { }) {
+                    Text(text = "Click me: ${counter.value}")
+                }
             }
         }
     }
